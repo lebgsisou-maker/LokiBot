@@ -148,5 +148,17 @@ client.on('interactionCreate', async (i) => {
     }
 });
 
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.send('Lokia Bot est en ligne et réveillé !');
+});
+
+app.listen(port, () => {
+  console.log(`Serveur de secours en cours d'exécution sur le port ${port}`);
+});
+
 client.login(process.env.TOKEN);
                   
