@@ -18,7 +18,7 @@ const SALON_PUB_ID = "1527472732890075206";
 const SALON_RESEAUX_ID = "1527477134145224814";
 const ROLES_AUTORISES = ["1526625483138269244", "1526720313952436334", "1526720034330775653", "1527500185251348520", "152662404745318001"];
 
-const MESSAGE_RAPPEL = "✒️ **Votre publicité doit respecter les Therms Of Service de discord ainsi que le règlement du serveur.**\n\n📝 **Votre publicité doit contenir une description, est un lien discord menant a un serveur.**\n\n🔞 **Si votre publicité contient du nswf ou autres qui contredit ou est interdit par les chartes discord sera automatiquement enlever puis sanctionner au niveau de la personnes.**\n\n⚠️ **Si vous quittez le serveur, vos publicités seront automatiquement supprimés.**\n\n*Merci de votre compréhension et bonne journée/soirée.*";
+const MESSAGE_RAPPEL = "✒️ **Votre publicité doit respecter les Therms Of Service de discord ainsi que le règlement du serveur.**\n\n📝 **Votre publicité doit contenir une description, est un lien discord menant a un serveur.**\n\n🔞 **Si votre publicité contient du nswf ou autres qui contredit ou est interdit by les chartes discord sera automatiquement enlever puis sanctionner au niveau de la personnes.**\n\n⚠️ **Si vous quittez le serveur, vos publicités seront automatiquement supprimés.**\n\n*Merci de votre compréhension et bonne journée/soirée.*";
 
 client.once('ready', () => {
     console.log(`✅ Le bot est en ligne ! Connecté en tant que : ${client.user.tag}`);
@@ -158,6 +158,7 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Serveur de secours en cours d'exécution sur le port ${port}`);
+}); // <-- C'est cette fermeture qui manquait juste ici !
 
 // ==================== COMMANDE CONTESTATION ====================
 client.on('messageCreate', async (message) => {
@@ -216,7 +217,7 @@ client.on('interactionCreate', async (interaction) => {
       )
       .setTimestamp();
 
-    const idFondateurs = ['1254877636799238257', '1526683922677629008']; // 🛑 Mets tes ID ici
+    const idFondateurs = ['1254877636799238257', '1526683922677629008'];
     for (const id of idFondateurs) {
       try {
         const fondateur = await client.users.fetch(id);
@@ -227,9 +228,6 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 // ===============================================================
-    
 
-client.login(process.env.TOKEN); // Ta ligne secrète qui était déjà là !
-    
-
-                  
+client.login(process.env.TOKEN);
+              
