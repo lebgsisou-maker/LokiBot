@@ -158,17 +158,7 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Serveur de secours en cours d'exécution sur le port ${port}`);
-});
 
-const { 
-  ActionRowBuilder, 
-  ButtonBuilder, 
-  ButtonStyle, 
-  ModalBuilder, 
-  TextInputBuilder, 
-  TextInputStyle, 
-  EmbedBuilder 
-} = require('discord.js');
 
 // 1. DÉCLENCHEMENT DE LA COMMANDE EXACTE
 client.on('messageCreate', async (message) => {
