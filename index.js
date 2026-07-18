@@ -160,5 +160,134 @@ app.listen(port, () => {
   console.log(`Serveur de secours en cours d'exécution sur le port ${port}`);
 });
 
+const { 
+  ActionRowBuilder, 
+  ButtonBuilder, 
+  ButtonStyle, 
+  ModalBuilder, 
+  TextInputBuilder, 
+  TextInputStyle, 
+  EmbedBuilder 
+} = require('discord.js');
+
+// 1. DÉCLENCHEMENT DE LA COMMANDE EXACTE
+client.on('messageCreate', async (message) => {
+  // On vérifie le nom exact de ta commande
+  if (message.content === '!contester-une-décision') {
+    
+    // Optionnel : On supprime le message sur le serveur pour la discrétion
+    if (message.guild) {
+      try { await message.delete(); } catch (e) { console.log("Impossible de supprimer le message"); }
+    }
+
+    try {
+      // Configuration des 3 options avec tes textes exacts
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId('opt_rien')
+          .setLabel('Option 1 : On m\'a banni Pour Rien')
+          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+          .setCustomId('opt_mute')
+          .setLabel('Option 2 : Je voudrais me faire mute du chat')
+          .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+          .setCustomId('opt_sanction')
+          .setLabel('Option 3 : On m\'a mis une sanction pour rien')
+          .setStyle(ButtonStyle.Secondary)
+      );
+
+      // Envoi du message en MP à l'utilisateur
+      await message.author.send({
+        content: "👋 **Bienvenue dans le système de contestation de Lokia.**\nChoisis l'option qui correspond à ta situation ci-dessous :",
+        components: [row]
+      });
+
+    } catch (error) {
+      // Si ses MP sont fermés, on le prévient discrètement sur le serveur
+      const alert = await message.channel.send(`❌ <@${message.author.id}>, je ne peux pas t'envoyer de message privé. Active tes MP dans tes paramètres de sécurité !`);
+      setTimeout(() => alert.delete().catch(() => {}), 5000); // Supprime l'alerte après 5 secondes
+    }
+  }
+});
+
+// 2. GESTION DES BOUTONS ET DU FORMULAIRE (MODAL)
+client.on('interactionCreate', async (interaction) => {
+  if (interaction.isButton() && interaction.customId.startsWith('opt_')) {
+    
+    let typeContestation = "";
+    if (interaction.customId === 'opt_rien') typeContestation = "On m'a banni Pour Rien";
+    if (interaction.customId === 'opt_mute') typeContestation = "Je voudrais me faire mute du chat";
+    if (interaction.customId === 'opt_sanction') typeContestation = "On m'a mis une sanction pour rien";
+
+    // Création du formulaire pop-up
+    const modal = new ModalBuilder()
+      .setCustomId(`formulaire_${interaction.customId}`)
+      .setTitle('Formulaire de contestation');
+
+    // Champ 1 : Par qui ?
+    const staffInput = new TextInputBuilder()
+      .setCustomId('form_staff')
+      .setLabel("Par qui as-tu été sanctionné(e) ?")
+      .setStyle(TextInputStyle.Short)
+      .setPlaceholder("Pseudo du modérateur ou de l'administrateur")
+      .setRequired(true);
+
+    // Champ 2 : Pourquoi / Explications
+    const raisonInput = new TextInputBuilder()
+      .setCustomId('form_raison')
+      .setLabel("Pourquoi contestes-tu ? (Explications)")
+      .setStyle(TextInputStyle.Paragraph)
+      .setPlaceholder("Raconte précisément ce qu'il s'est passé...")
+      .setRequired(true);
+
+    const actionStaff = new ActionRowBuilder().addComponents(staffInput);
+    const actionRaison = new ActionRowBuilder().addComponents(raisonInput);
+    modal.addComponents(actionStaff, actionRaison);
+
+    await interaction.showModal(modal);
+  }
+
+  // 3. ENVOI AUX FONDATEURS LORSQUE LE FORMULAIRE EST VALIDÉ
+  if (interaction.isModalSubmit() && interaction.customId.startsWith('formulaire_')) {
+    const staff = interaction.fields.getTextInputValue('form_staff');
+    const raison = interaction.fields.getTextInputValue('form_raison');
+    
+    let typeFinal = "Inconnu";
+    if (interaction.customId.includes('opt_rien')) typeFinal = "Option 1 : On m'a banni Pour Rien";
+    if (interaction.customId.includes('opt_mute')) typeFinal = "Option 2 : Je voudrais me faire mute du chat";
+    if (interaction.customId.includes('opt_sanction')) typeFinal = "Option 3 : On m'a mis une sanction pour rien";
+
+    // Création du récapitulatif pour les fondateurs
+    const embedFormulaire = new EmbedBuilder()
+      .setColor('#00ffaa')
+      .setTitle('📥 Nouvelle contestation reçue !')
+      .addFields(
+        { name: 'Membre :', value: `${interaction.user.tag} (\`${interaction.user.id}\`)` },
+        { name: 'Option choisie :', value: typeFinal },
+        { name: 'Sanctionné par :', value: staff },
+        { name: 'Explications du membre :', value: raison }
+      )
+      .setTimestamp();
+
+    // 🛑 AJOUTE LES VRAIS ID DES DEUX FONDATEURS ICI
+    const idFondateurs = ['1254877636799238257', '1526683922677629008'];
+
+    for (const id of idFondateurs) {
+      try {
+        const fondateur = await client.users.fetch(id);
+        await fondateur.send({ embeds: [embedFormulaire] });
+      } catch (e) {
+        console.log(`Impossible d'envoyer le MP au fondateur ${id}`);
+      }
+    }
+
+    await interaction.reply({ 
+      content: "✅ Ton mini-formulaire a bien été envoyé aux deux fondateurs. Merci !", 
+      ephemeral: true 
+    });
+  }
+});
+
 client.login(process.env.TOKEN);
                   
