@@ -272,12 +272,14 @@ client.on('interactionCreate', async (interaction) => {
       }
     }
 
-    await interaction.reply({ 
+        await interaction.reply({ 
       content: "✅ Ton mini-formulaire a bien été envoyé aux deux fondateurs. Merci !", 
       ephemeral: true 
     });
-  }
-});
+  } // <- Cette accolade ferme le formulaire
+}); // <- Cette accolade et parenthèse ferment l'interaction
 
-client.login(process.env.TOKEN);
+client.login(process.env.TOKEN); // Ta ligne secrète qui était déjà là !
+    
+
                   
